@@ -5,8 +5,6 @@
 #include "all_have_action.hpp"
 #include "objective_fairness.hpp"
 
-using ghost::global_constraints::AllDifferent;
-
 BuilderASR::BuilderASR( int number_selection,
                         int current_iteration,
                         const std::vector<int>& vector_units_actions,
@@ -35,7 +33,7 @@ void BuilderASR::declare_variables()
 
 void BuilderASR::declare_constraints()
 {
-	constraints.emplace_back( std::make_shared<AllDifferent>( variables ) );
+	constraints.emplace_back( std::make_shared<ghost::global_constraints::AllDifferent>( variables ) );
 	constraints.emplace_back( std::make_shared<AllHaveAction>( variables, _set_units ) );
 }
 

@@ -32,7 +32,7 @@ int main( int argc, char **argv )
 	BuilderASR builder( number_selection, current_iteration, actions, last_usage );
 	ghost::Solver solver( builder );
 
-  double error;
+  double cost;
   std::vector<int> solution;
 
   ghost::Options options;
@@ -40,9 +40,10 @@ int main( int argc, char **argv )
 	if( parallel )
 		options.parallel_runs = true;
 	
-  solver.solve( error, solution, 1s, options );		
+  // Optimal cost 470
+  solver.solve( cost, solution, 100ms, options );		
 
-  std::cout << "Error = " << error 
+  std::cout << "Cost = " << cost 
             << "\nSolution: ";
   for( auto sol : solution )
 	  std::cout << sol << " ";
