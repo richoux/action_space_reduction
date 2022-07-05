@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <map>
 #include <string> // std::stoi
 
 #include <ghost/solver.hpp>
@@ -21,8 +22,14 @@ int main( int argc, char **argv )
 	                         301, 302, 303, 304, 306, 307,
 	                         401, 402, 404};
 	int number_selection = 8;
+	int current_iteration = 1000;
 	
-	BuilderASR builder( number_selection, actions );
+	std::map<int, int> last_usage{ {101, 950}, {102, 950}, {103, 940},
+	                               {201, 960}, {203, 960}, {204, 970}, {205, 950},
+	                               {301, 930}, {302, 930}, {303, 920}, {304, 930}, {306, 950}, {307, 960},
+	                               {401, 990}, {402, 990}, {404, 980} };
+	
+	BuilderASR builder( number_selection, current_iteration, actions, last_usage );
 	ghost::Solver solver( builder );
 
   double error;
