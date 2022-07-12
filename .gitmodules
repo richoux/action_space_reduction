@@ -6,4 +6,4 @@
 	url = https://github.com/protocolbuffers/protobuf.git
 [submodule "gym-microrts"]
 	path = gym-microrts
-	url = https://github.com/vwxyzjn/gym-microrts-paper.git
+	url = https://github.com/richoux/gym-microrts-paper.git
