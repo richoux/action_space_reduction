@@ -7,8 +7,8 @@ CXXFIRSTFLAGS= -O3 -W -Wall -Wextra -Wno-sign-compare -Wno-unused-parameter
 CXXFIRSTFLAGSDEBUG= -g -O0 -DDEBUG -W -Wall -Wextra -Wno-sign-compare -Wno-unused-parameter
 CXXFIRSTFLAGSINFO= -g -O2 -W -Wall -Wextra -Wno-sign-compare -Wno-unused-parameter
 #LDFLAGSDEBUG=-pthread -lghost_staticd -fsanitize=address -static-libasan
-LDFLAGSDEBUG=-pthread -lghost_staticd
-LDFLAGSINFO=-pthread -lghost
+LDFLAGSDEBUG=-pthread -lghost_staticd -lprotobuf
+LDFLAGSINFO=-pthread -lghost -lprotobuf
 
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
@@ -16,18 +16,18 @@ ifeq ($(UNAME_S),Linux)
 	CXXFLAGS= -std=c++17 $(CXXFIRSTFLAGS) $(MYFLAGS)
 	CXXFLAGSDEBUG= -std=c++17 $(CXXFIRSTFLAGSDEBUG) $(MYFLAGS)
 	CXXFLAGSINFO= -std=c++17 $(CXXFIRSTFLAGSINFO) $(MYFLAGS)
-	LDFLAGS=-pthread -lghost_static
+	LDFLAGS=-pthread -lghost_static -lprotobuf
 endif
 ifeq ($(UNAME_S),Darwin)
 	CXX=clang++
 	CXXFLAGS= -std=c++17  -stdlib=libc++ $(CXXFIRSTFLAGS) $(MYFLAGS)
 	CXXFLAGSDEBUG= -std=c++17  -stdlib=libc++ $(CXXFIRSTFLAGSDEBUG) $(MYFLAGS)
-	LDFLAGS=-pthread -lghost_static -lc++ -lc++abi
+	LDFLAGS=-pthread -lghost_static -lprotobuf -lc++ -lc++abi
 endif
 
 # Directories
-SRCDIR=src
-HPPDIR=src
+SRCDIR=src protobuf_code
+HPPDIR=src protobuf_code
 OBJDIR=obj
 BINDIR=bin
 
@@ -54,13 +54,16 @@ info: CXXFLAGS=$(CXXFLAGSINFO)
 info: LDFLAGS=$(LDFLAGSINFO)
 info: $(BINDIR)/$(EXEC)
 
-$(BINDIR)/$(EXEC): $(OBJECTS)
+$(BINDIR)/$(EXEC): $(OBJECTS) $(OBJDIR)/asr.pb.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 $(OBJDIR)/%.o: %.cpp
 	$(CXX) $(CXXFLAGS) -I$(HPPDIR) -c $< -o $@
 
+$(OBJDIR)/asr.pb.o: protobuf_code/asr.pb.cc
+	$(CXX) $(CXXFLAGS) -I$(HPPDIR) -c $< -o $@
+
 .PHONY: clean
 
 clean:
-	rm -fr core $(BINDIR)/$(EXEC) $(OBJECTS) 
+	rm -fr core $(BINDIR)/$(EXEC) $(OBJDIR)/*.o 

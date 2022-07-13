@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+message Unit
+{
+	int32 unit_id = 1;
+	repeated int32 actions_id = 2;
+}
+
+message State
+{
+	repeated Unit units = 1;
+}

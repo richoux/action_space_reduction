@@ -2,15 +2,119 @@
 #include <vector>
 #include <map>
 #include <string> // std::stoi
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <unistd.h>
 
 #include <ghost/solver.hpp>
 
 #include "builder_asr.hpp"
+#include "../protobuf_code/asr.pb.h"
 
 using namespace std::literals::chrono_literals;
 
 int main( int argc, char **argv )
 {
+	GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+	int sock = 0;
+	sockaddr_in server_address;
+	server_address.sin_family = AF_INET;
+	server_address.sin_addr.s_addr = INADDR_ANY;
+	int port = 1085;
+	
+	if( ( sock = socket( AF_INET, SOCK_STREAM, 0 ) ) < 0 )
+	{
+		std::cout << "C++ server: Socket creation error\n";
+		exit( EXIT_FAILURE );
+	}
+
+	std::cout << "C++ server: Socket created\n";
+
+	server_address.sin_port = htons( port );
+	
+	// Convert IPv4 and IPv6 addresses from text to binary form
+	if( inet_pton( AF_INET, "127.0.0.1", &server_address.sin_addr ) <= 0 ) 
+	{
+		std::cout << "C++ server: Invalid address/ Address not supported\n";
+		exit( EXIT_FAILURE );
+	}
+
+	bind( sock, (struct sockaddr*)&server_address, sizeof(struct sockaddr) );
+	listen( sock, 1 );
+	
+	// std::cout << "C++ server: address assigned to python client\n";
+
+	// if( connect( sock, (struct sockaddr *)&server_address, sizeof( server_address ) ) < 0 )
+	// {
+	// 	std::cout << "C++ server: Connection Failed\n";
+	// 	exit( EXIT_FAILURE );
+	// }
+	
+	while( true )
+	{
+		sockaddr_in clientAddr;
+		socklen_t sin_size = sizeof(struct sockaddr_in);
+		int clientSock = accept( sock, (struct sockaddr*)&clientAddr, &sin_size );
+
+		std::cout << "C++ server: python client connected\n";
+
+		// //receive a message from a client
+		// n = read(clientSock, buffer, 500);
+		// cout << "Confirmation code  " << n << endl;
+		// cout << "Server received:  " << buffer << endl;
+
+		// strcpy(buffer, "test");
+		// n = write(clientSock, buffer, strlen(buffer));
+		// cout << "Confirmation code  " << n << endl;
+
+		State game_state;
+		
+		char* buffer = new char[1024];
+		read( clientSock, buffer, 1024 );
+			//recv( sock, buffer, 1024, 0 );
+		game_state.ParseFromString( buffer );
+		
+		std::cout << "C++ server: data reception from python client\n";
+		
+		for( int u = 0 ; u < game_state.units_size() ; ++u )
+		{
+			auto unit = game_state.units( u );
+			std::cout << "Actions of unit id=" << unit.unit_id() * 100 << ": ";
+			for( int a = 0 ; a < unit.actions_id_size() ; ++a )
+			{
+				if( a == 0 )
+					std::cout << unit.actions_id( a );
+				else
+					std::cout << ", " << unit.actions_id( a );
+			}
+			std::cout << "\n";
+		}
+
+		State solution;
+
+		auto unit = solution.add_units();
+		unit->set_unit_id( 2 );
+		unit->add_actions_id( 21 );
+		unit->add_actions_id( 22 );
+		unit->add_actions_id( 23 );
+		
+		unit = solution.add_units();
+		unit->set_unit_id( 5 );
+		unit->add_actions_id( 55 );
+		unit->add_actions_id( 56 );
+		unit->add_actions_id( 57 );
+		
+		auto size = solution.ByteSizeLong();
+		char* array = new char[size];
+		solution.SerializeToArray( array, size );
+		
+		send( clientSock, (const char*)array, size, 0 );
+	}
+
+	/*
 	bool parallel = false;
 	
 	if( argc == 2 )
@@ -57,4 +161,5 @@ int main( int argc, char **argv )
 	// 	return EXIT_SUCCESS;
 	// else
 	// 	return EXIT_FAILURE;
+	*/
 }

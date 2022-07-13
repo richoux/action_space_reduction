@@ -20,3 +20,10 @@ Just type
 make
 ```
 in the repository root folder.
+
+## From the python side
+
+Install this version of protobuf:
+```shell
+pip install protobuf==3.20.1
+```
