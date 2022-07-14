@@ -2,10 +2,10 @@ EXEC=action_space_reduction
 
 # Compiler flags
 MYFLAGS=
-CXXFIRSTFLAGS= -O3 -W -Wall -Wextra -Wno-sign-compare -Wno-unused-parameter
+CXXFIRSTFLAGS= -O3 -W -Wall -Wextra -Wno-sign-compare -Wno-unused-parameter -Wno-unused-result
 #CXXFIRSTFLAGSDEBUG= -g -O0 -DDEBUG -W -Wall -Wextra -Wno-sign-compare -Wno-unused-parameter -fsanitize=address -v -da -Q
-CXXFIRSTFLAGSDEBUG= -g -O0 -DDEBUG -W -Wall -Wextra -Wno-sign-compare -Wno-unused-parameter
-CXXFIRSTFLAGSINFO= -g -O2 -W -Wall -Wextra -Wno-sign-compare -Wno-unused-parameter
+CXXFIRSTFLAGSDEBUG= -g -O0 -DDEBUG -W -Wall -Wextra -Wno-sign-compare -Wno-unused-parameter -Wno-unused-result
+CXXFIRSTFLAGSINFO= -g -O2 -W -Wall -Wextra -Wno-sign-compare -Wno-unused-parameter -Wno-unused-result
 #LDFLAGSDEBUG=-pthread -lghost_staticd -fsanitize=address -static-libasan
 LDFLAGSDEBUG=-pthread -lghost_staticd -lprotobuf
 LDFLAGSINFO=-pthread -lghost -lprotobuf
@@ -13,21 +13,21 @@ LDFLAGSINFO=-pthread -lghost -lprotobuf
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
 	CXX=g++
-	CXXFLAGS= -std=c++17 $(CXXFIRSTFLAGS) $(MYFLAGS)
-	CXXFLAGSDEBUG= -std=c++17 $(CXXFIRSTFLAGSDEBUG) $(MYFLAGS)
-	CXXFLAGSINFO= -std=c++17 $(CXXFIRSTFLAGSINFO) $(MYFLAGS)
+	CXXFLAGS= -std=c++20 $(CXXFIRSTFLAGS) $(MYFLAGS)
+	CXXFLAGSDEBUG= -std=c++20 $(CXXFIRSTFLAGSDEBUG) $(MYFLAGS)
+	CXXFLAGSINFO= -std=c++20 $(CXXFIRSTFLAGSINFO) $(MYFLAGS)
 	LDFLAGS=-pthread -lghost_static -lprotobuf
 endif
 ifeq ($(UNAME_S),Darwin)
 	CXX=clang++
-	CXXFLAGS= -std=c++17  -stdlib=libc++ $(CXXFIRSTFLAGS) $(MYFLAGS)
-	CXXFLAGSDEBUG= -std=c++17  -stdlib=libc++ $(CXXFIRSTFLAGSDEBUG) $(MYFLAGS)
+	CXXFLAGS= -std=c++20  -stdlib=libc++ $(CXXFIRSTFLAGS) $(MYFLAGS)
+	CXXFLAGSDEBUG= -std=c++20  -stdlib=libc++ $(CXXFIRSTFLAGSDEBUG) $(MYFLAGS)
 	LDFLAGS=-pthread -lghost_static -lprotobuf -lc++ -lc++abi
 endif
 
 # Directories
-SRCDIR=src protobuf_code
-HPPDIR=src protobuf_code
+SRCDIR=src
+HPPDIR=src
 OBJDIR=obj
 BINDIR=bin
 
@@ -58,10 +58,10 @@ $(BINDIR)/$(EXEC): $(OBJECTS) $(OBJDIR)/asr.pb.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 $(OBJDIR)/%.o: %.cpp
-	$(CXX) $(CXXFLAGS) -I$(HPPDIR) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -I$(HPPDIR) -I./protobuf_code -c $< -o $@
 
 $(OBJDIR)/asr.pb.o: protobuf_code/asr.pb.cc
-	$(CXX) $(CXXFLAGS) -I$(HPPDIR) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -I$(HPPDIR) -I./protobuf_code -c $< -o $@
 
 .PHONY: clean
 

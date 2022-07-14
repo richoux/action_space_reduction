@@ -352,6 +352,7 @@ class State final :
 
   enum : int {
     kUnitsFieldNumber = 1,
+    kFindSolutionFieldNumber = 2,
   };
   // repeated .Unit units = 1;
   int units_size() const;
@@ -371,6 +372,19 @@ class State final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Unit >&
       units() const;
 
+  // optional bool find_solution = 2;
+  bool has_find_solution() const;
+  private:
+  bool _internal_has_find_solution() const;
+  public:
+  void clear_find_solution();
+  bool find_solution() const;
+  void set_find_solution(bool value);
+  private:
+  bool _internal_find_solution() const;
+  void _internal_set_find_solution(bool value);
+  public:
+
   // @@protoc_insertion_point(class_scope:State)
  private:
   class _Internal;
@@ -379,8 +393,10 @@ class State final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Unit > units_;
+    ::PROTOBUF_NAMESPACE_ID::internal::HasBits<1> _has_bits_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Unit > units_;
+    bool find_solution_;
   };
   union { Impl_ _impl_; };
   friend struct ::TableStruct_asr_2eproto;
@@ -505,6 +521,34 @@ inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Unit >&
 State::units() const {
   // @@protoc_insertion_point(field_list:State.units)
   return _impl_.units_;
+}
+
+// optional bool find_solution = 2;
+inline bool State::_internal_has_find_solution() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
+  return value;
+}
+inline bool State::has_find_solution() const {
+  return _internal_has_find_solution();
+}
+inline void State::clear_find_solution() {
+  _impl_.find_solution_ = false;
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline bool State::_internal_find_solution() const {
+  return _impl_.find_solution_;
+}
+inline bool State::find_solution() const {
+  // @@protoc_insertion_point(field_get:State.find_solution)
+  return _internal_find_solution();
+}
+inline void State::_internal_set_find_solution(bool value) {
+  _impl_._has_bits_[0] |= 0x00000001u;
+  _impl_.find_solution_ = value;
+}
+inline void State::set_find_solution(bool value) {
+  _internal_set_find_solution(value);
+  // @@protoc_insertion_point(field_set:State.find_solution)
 }
 
 #ifdef __GNUC__

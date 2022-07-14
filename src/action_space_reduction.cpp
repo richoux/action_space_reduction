@@ -7,6 +7,7 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <unistd.h>
+#include <algorithm>
 
 #include <ghost/solver.hpp>
 
@@ -52,14 +53,15 @@ int main( int argc, char **argv )
 	// 	std::cout << "C++ server: Connection Failed\n";
 	// 	exit( EXIT_FAILURE );
 	// }
+
+	sockaddr_in clientAddr;
+	socklen_t sin_size = sizeof(struct sockaddr_in);
+	int clientSock = accept( sock, (struct sockaddr*)&clientAddr, &sin_size );
 	
+	std::cout << "C++ server: python client connected\n";
+
 	while( true )
 	{
-		sockaddr_in clientAddr;
-		socklen_t sin_size = sizeof(struct sockaddr_in);
-		int clientSock = accept( sock, (struct sockaddr*)&clientAddr, &sin_size );
-
-		std::cout << "C++ server: python client connected\n";
 
 		// //receive a message from a client
 		// n = read(clientSock, buffer, 500);
@@ -74,92 +76,107 @@ int main( int argc, char **argv )
 		
 		char* buffer = new char[1024];
 		read( clientSock, buffer, 1024 );
-			//recv( sock, buffer, 1024, 0 );
+		//recv( sock, buffer, 1024, 0 );
 		game_state.ParseFromString( buffer );
 		
-		std::cout << "C++ server: data reception from python client\n";
+		// for( int u = 0 ; u < game_state.units_size() ; ++u )
+		// {
+		// 	auto unit = game_state.units( u );
+		// 	std::cout << "Actions of unit id=" << unit.unit_id() * 100 << ": ";
+		// 	for( int a = 0 ; a < unit.actions_id_size() ; ++a )
+		// 	{
+		// 		if( a == 0 )
+		// 			std::cout << unit.actions_id( a );
+		// 		else
+		// 			std::cout << ", " << unit.actions_id( a );
+		// 	}
+		// 	std::cout << "\n";
+		// }
+
+		// State solution;
+
+		// auto unit = solution.add_units();
+		// unit->set_unit_id( 2 );
+		// unit->add_actions_id( 21 );
+		// unit->add_actions_id( 22 );
+		// unit->add_actions_id( 23 );
 		
-		for( int u = 0 ; u < game_state.units_size() ; ++u )
+		// unit = solution.add_units();
+		// unit->set_unit_id( 5 );
+		// unit->add_actions_id( 55 );
+		// unit->add_actions_id( 56 );
+		// unit->add_actions_id( 57 );
+		
+		// auto size = solution.ByteSizeLong();
+		// char* array = new char[size];
+		// solution.SerializeToArray( array, size );
+		
+		// send( clientSock, (const char*)array, size, 0 );
+
+		// actions XYY, with X the unit ID and YY the action ID.
+		// std::vector<int> actions{101, 102, 103,
+		//                          201, 203, 204, 205,
+		//                          301, 302, 303, 304, 306, 307,
+		//                          401, 402, 404};
+		// int number_selection = 8;
+		// int current_iteration = 1000;
+	
+		// std::map<int, int> last_usage{ {101, 950}, {102, 950}, {103, 940},
+		//                                {201, 960}, {203, 960}, {204, 970}, {205, 950},
+		//                                {301, 930}, {302, 930}, {303, 920}, {304, 930}, {306, 950}, {307, 960},
+		//                                {401, 990}, {402, 990}, {404, 980} };
+		// // Optimal cost 470
+
+		int number_actions = 0;
+		std::vector<int> actions;
+
+		for( auto unit : game_state.units() )
 		{
-			auto unit = game_state.units( u );
-			std::cout << "Actions of unit id=" << unit.unit_id() * 100 << ": ";
-			for( int a = 0 ; a < unit.actions_id_size() ; ++a )
-			{
-				if( a == 0 )
-					std::cout << unit.actions_id( a );
-				else
-					std::cout << ", " << unit.actions_id( a );
-			}
-			std::cout << "\n";
+			number_actions += unit.actions_id_size();
+			for( auto action : unit.actions_id() )
+				actions.push_back( 100 * unit.unit_id() + action );
+			// std::cout << unit.unit_id() << " ";
+		}
+		// std::cout << "\n";
+
+		int number_selection = std::min( 2 * game_state.units_size(), number_actions );
+		
+		// BuilderASR builder( number_selection, current_iteration, actions, last_usage );
+		BuilderASR builder( number_selection, actions );
+		ghost::Solver solver( builder );
+
+		double cost;
+		std::vector<int> solution;
+
+		bool solution_found = solver.solve( cost, solution, 1ms );		
+
+		State filtered_actions;
+		std::map<int,std::vector<int>> unit_actions;
+		
+		for( auto action : solution )
+		{
+			int unit_id = action / 100;
+			int action_id = action % 100;
+
+			unit_actions[unit_id].push_back( action_id );
 		}
 
-		State solution;
+		for( auto[k, v] : unit_actions )
+		{
+			auto unit = filtered_actions.add_units();
+			unit->set_unit_id( k );
+			for( auto action_id : v )
+				unit->add_actions_id( action_id );
+		}
+		filtered_actions.set_find_solution( solution_found );
 
-		auto unit = solution.add_units();
-		unit->set_unit_id( 2 );
-		unit->add_actions_id( 21 );
-		unit->add_actions_id( 22 );
-		unit->add_actions_id( 23 );
+		if( !solution_found )
+			std::cout << "solution not found\n";
 		
-		unit = solution.add_units();
-		unit->set_unit_id( 5 );
-		unit->add_actions_id( 55 );
-		unit->add_actions_id( 56 );
-		unit->add_actions_id( 57 );
-		
-		auto size = solution.ByteSizeLong();
+		auto size = filtered_actions.ByteSizeLong();
 		char* array = new char[size];
-		solution.SerializeToArray( array, size );
+		filtered_actions.SerializeToArray( array, size );
 		
 		send( clientSock, (const char*)array, size, 0 );
 	}
-
-	/*
-	bool parallel = false;
-	
-	if( argc == 2 )
-		parallel = ( std::stoi( argv[1] ) != 0 );
-
-	// actions XYY, with X the unit ID and YY the action ID.
-	std::vector<int> actions{101, 102, 103,
-	                         201, 203, 204, 205,
-	                         301, 302, 303, 304, 306, 307,
-	                         401, 402, 404};
-	int number_selection = 8;
-	int current_iteration = 1000;
-	
-	std::map<int, int> last_usage{ {101, 950}, {102, 950}, {103, 940},
-	                               {201, 960}, {203, 960}, {204, 970}, {205, 950},
-	                               {301, 930}, {302, 930}, {303, 920}, {304, 930}, {306, 950}, {307, 960},
-	                               {401, 990}, {402, 990}, {404, 980} };
-	
-	BuilderASR builder( number_selection, current_iteration, actions, last_usage );
-	ghost::Solver solver( builder );
-
-  double cost;
-  std::vector<int> solution;
-
-  ghost::Options options;
-
-	if( parallel )
-		options.parallel_runs = true;
-	
-  // Optimal cost 470
-  solver.solve( cost, solution, 100ms, options );		
-
-  std::cout << "Cost = " << cost 
-            << "\nSolution: ";
-  for( auto sol : solution )
-	  std::cout << sol << " ";
-  std::cout << "\n";
-  
-  return EXIT_SUCCESS;
-  
-	// bool success = check_solution( solution );
-	
-	// if( success )
-	// 	return EXIT_SUCCESS;
-	// else
-	// 	return EXIT_FAILURE;
-	*/
 }
