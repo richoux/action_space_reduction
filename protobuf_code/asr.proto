@@ -6,8 +6,14 @@ message Unit
 	repeated int32 actions_id = 2;
 }
 
-message State
+message Environment
 {
-	repeated Unit units = 1;
-	optional bool find_solution = 2;
+	int32 environment_id = 1;
+	repeated Unit units = 2;
+	optional bool has_been_found = 3;
+}
+
+message Training
+{
+	repeated Environment environments = 1;	
 }

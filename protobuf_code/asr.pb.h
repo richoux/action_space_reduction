@@ -44,14 +44,18 @@ struct TableStruct_asr_2eproto {
   static const uint32_t offsets[];
 };
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_asr_2eproto;
-class State;
-struct StateDefaultTypeInternal;
-extern StateDefaultTypeInternal _State_default_instance_;
+class Environment;
+struct EnvironmentDefaultTypeInternal;
+extern EnvironmentDefaultTypeInternal _Environment_default_instance_;
+class Training;
+struct TrainingDefaultTypeInternal;
+extern TrainingDefaultTypeInternal _Training_default_instance_;
 class Unit;
 struct UnitDefaultTypeInternal;
 extern UnitDefaultTypeInternal _Unit_default_instance_;
 PROTOBUF_NAMESPACE_OPEN
-template<> ::State* Arena::CreateMaybeMessage<::State>(Arena*);
+template<> ::Environment* Arena::CreateMaybeMessage<::Environment>(Arena*);
+template<> ::Training* Arena::CreateMaybeMessage<::Training>(Arena*);
 template<> ::Unit* Arena::CreateMaybeMessage<::Unit>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 
@@ -230,24 +234,24 @@ class Unit final :
 };
 // -------------------------------------------------------------------
 
-class State final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:State) */ {
+class Environment final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Environment) */ {
  public:
-  inline State() : State(nullptr) {}
-  ~State() override;
-  explicit PROTOBUF_CONSTEXPR State(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  inline Environment() : Environment(nullptr) {}
+  ~Environment() override;
+  explicit PROTOBUF_CONSTEXPR Environment(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
-  State(const State& from);
-  State(State&& from) noexcept
-    : State() {
+  Environment(const Environment& from);
+  Environment(Environment&& from) noexcept
+    : Environment() {
     *this = ::std::move(from);
   }
 
-  inline State& operator=(const State& from) {
+  inline Environment& operator=(const Environment& from) {
     CopyFrom(from);
     return *this;
   }
-  inline State& operator=(State&& from) noexcept {
+  inline Environment& operator=(Environment&& from) noexcept {
     if (this == &from) return *this;
     if (GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -270,20 +274,20 @@ class State final :
   static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
-  static const State& default_instance() {
+  static const Environment& default_instance() {
     return *internal_default_instance();
   }
-  static inline const State* internal_default_instance() {
-    return reinterpret_cast<const State*>(
-               &_State_default_instance_);
+  static inline const Environment* internal_default_instance() {
+    return reinterpret_cast<const Environment*>(
+               &_Environment_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
     1;
 
-  friend void swap(State& a, State& b) {
+  friend void swap(Environment& a, Environment& b) {
     a.Swap(&b);
   }
-  inline void Swap(State* other) {
+  inline void Swap(Environment* other) {
     if (other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
     if (GetOwningArena() != nullptr &&
@@ -296,7 +300,7 @@ class State final :
       ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(State* other) {
+  void UnsafeArenaSwap(Environment* other) {
     if (other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
@@ -304,14 +308,14 @@ class State final :
 
   // implements Message ----------------------------------------------
 
-  State* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
-    return CreateMaybeMessage<State>(arena);
+  Environment* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<Environment>(arena);
   }
   using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
-  void CopyFrom(const State& from);
+  void CopyFrom(const Environment& from);
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
-  void MergeFrom( const State& from) {
-    State::MergeImpl(*this, from);
+  void MergeFrom( const Environment& from) {
+    Environment::MergeImpl(*this, from);
   }
   private:
   static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
@@ -329,15 +333,15 @@ class State final :
   void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
   void SharedDtor();
   void SetCachedSize(int size) const final;
-  void InternalSwap(State* other);
+  void InternalSwap(Environment* other);
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "State";
+    return "Environment";
   }
   protected:
-  explicit State(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+  explicit Environment(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                        bool is_message_owned = false);
   public:
 
@@ -351,10 +355,11 @@ class State final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kUnitsFieldNumber = 1,
-    kFindSolutionFieldNumber = 2,
+    kUnitsFieldNumber = 2,
+    kEnvironmentIdFieldNumber = 1,
+    kHasBeenFoundFieldNumber = 3,
   };
-  // repeated .Unit units = 1;
+  // repeated .Unit units = 2;
   int units_size() const;
   private:
   int _internal_units_size() const;
@@ -372,20 +377,29 @@ class State final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Unit >&
       units() const;
 
-  // optional bool find_solution = 2;
-  bool has_find_solution() const;
+  // int32 environment_id = 1;
+  void clear_environment_id();
+  int32_t environment_id() const;
+  void set_environment_id(int32_t value);
   private:
-  bool _internal_has_find_solution() const;
-  public:
-  void clear_find_solution();
-  bool find_solution() const;
-  void set_find_solution(bool value);
-  private:
-  bool _internal_find_solution() const;
-  void _internal_set_find_solution(bool value);
+  int32_t _internal_environment_id() const;
+  void _internal_set_environment_id(int32_t value);
   public:
 
-  // @@protoc_insertion_point(class_scope:State)
+  // optional bool has_been_found = 3;
+  bool has_has_been_found() const;
+  private:
+  bool _internal_has_has_been_found() const;
+  public:
+  void clear_has_been_found();
+  bool has_been_found() const;
+  void set_has_been_found(bool value);
+  private:
+  bool _internal_has_been_found() const;
+  void _internal_set_has_been_found(bool value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:Environment)
  private:
   class _Internal;
 
@@ -396,7 +410,165 @@ class State final :
     ::PROTOBUF_NAMESPACE_ID::internal::HasBits<1> _has_bits_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
     ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Unit > units_;
-    bool find_solution_;
+    int32_t environment_id_;
+    bool has_been_found_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_asr_2eproto;
+};
+// -------------------------------------------------------------------
+
+class Training final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Training) */ {
+ public:
+  inline Training() : Training(nullptr) {}
+  ~Training() override;
+  explicit PROTOBUF_CONSTEXPR Training(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  Training(const Training& from);
+  Training(Training&& from) noexcept
+    : Training() {
+    *this = ::std::move(from);
+  }
+
+  inline Training& operator=(const Training& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline Training& operator=(Training&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const Training& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const Training* internal_default_instance() {
+    return reinterpret_cast<const Training*>(
+               &_Training_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    2;
+
+  friend void swap(Training& a, Training& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(Training* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(Training* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  Training* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<Training>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const Training& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const Training& from) {
+    Training::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(Training* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Training";
+  }
+  protected:
+  explicit Training(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kEnvironmentsFieldNumber = 1,
+  };
+  // repeated .Environment environments = 1;
+  int environments_size() const;
+  private:
+  int _internal_environments_size() const;
+  public:
+  void clear_environments();
+  ::Environment* mutable_environments(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Environment >*
+      mutable_environments();
+  private:
+  const ::Environment& _internal_environments(int index) const;
+  ::Environment* _internal_add_environments();
+  public:
+  const ::Environment& environments(int index) const;
+  ::Environment* add_environments();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Environment >&
+      environments() const;
+
+  // @@protoc_insertion_point(class_scope:Training)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Environment > environments_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
   friend struct ::TableStruct_asr_2eproto;
@@ -481,79 +653,145 @@ Unit::mutable_actions_id() {
 
 // -------------------------------------------------------------------
 
-// State
+// Environment
 
-// repeated .Unit units = 1;
-inline int State::_internal_units_size() const {
+// int32 environment_id = 1;
+inline void Environment::clear_environment_id() {
+  _impl_.environment_id_ = 0;
+}
+inline int32_t Environment::_internal_environment_id() const {
+  return _impl_.environment_id_;
+}
+inline int32_t Environment::environment_id() const {
+  // @@protoc_insertion_point(field_get:Environment.environment_id)
+  return _internal_environment_id();
+}
+inline void Environment::_internal_set_environment_id(int32_t value) {
+  
+  _impl_.environment_id_ = value;
+}
+inline void Environment::set_environment_id(int32_t value) {
+  _internal_set_environment_id(value);
+  // @@protoc_insertion_point(field_set:Environment.environment_id)
+}
+
+// repeated .Unit units = 2;
+inline int Environment::_internal_units_size() const {
   return _impl_.units_.size();
 }
-inline int State::units_size() const {
+inline int Environment::units_size() const {
   return _internal_units_size();
 }
-inline void State::clear_units() {
+inline void Environment::clear_units() {
   _impl_.units_.Clear();
 }
-inline ::Unit* State::mutable_units(int index) {
-  // @@protoc_insertion_point(field_mutable:State.units)
+inline ::Unit* Environment::mutable_units(int index) {
+  // @@protoc_insertion_point(field_mutable:Environment.units)
   return _impl_.units_.Mutable(index);
 }
 inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Unit >*
-State::mutable_units() {
-  // @@protoc_insertion_point(field_mutable_list:State.units)
+Environment::mutable_units() {
+  // @@protoc_insertion_point(field_mutable_list:Environment.units)
   return &_impl_.units_;
 }
-inline const ::Unit& State::_internal_units(int index) const {
+inline const ::Unit& Environment::_internal_units(int index) const {
   return _impl_.units_.Get(index);
 }
-inline const ::Unit& State::units(int index) const {
-  // @@protoc_insertion_point(field_get:State.units)
+inline const ::Unit& Environment::units(int index) const {
+  // @@protoc_insertion_point(field_get:Environment.units)
   return _internal_units(index);
 }
-inline ::Unit* State::_internal_add_units() {
+inline ::Unit* Environment::_internal_add_units() {
   return _impl_.units_.Add();
 }
-inline ::Unit* State::add_units() {
+inline ::Unit* Environment::add_units() {
   ::Unit* _add = _internal_add_units();
-  // @@protoc_insertion_point(field_add:State.units)
+  // @@protoc_insertion_point(field_add:Environment.units)
   return _add;
 }
 inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Unit >&
-State::units() const {
-  // @@protoc_insertion_point(field_list:State.units)
+Environment::units() const {
+  // @@protoc_insertion_point(field_list:Environment.units)
   return _impl_.units_;
 }
 
-// optional bool find_solution = 2;
-inline bool State::_internal_has_find_solution() const {
+// optional bool has_been_found = 3;
+inline bool Environment::_internal_has_has_been_found() const {
   bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
   return value;
 }
-inline bool State::has_find_solution() const {
-  return _internal_has_find_solution();
+inline bool Environment::has_has_been_found() const {
+  return _internal_has_has_been_found();
 }
-inline void State::clear_find_solution() {
-  _impl_.find_solution_ = false;
+inline void Environment::clear_has_been_found() {
+  _impl_.has_been_found_ = false;
   _impl_._has_bits_[0] &= ~0x00000001u;
 }
-inline bool State::_internal_find_solution() const {
-  return _impl_.find_solution_;
+inline bool Environment::_internal_has_been_found() const {
+  return _impl_.has_been_found_;
 }
-inline bool State::find_solution() const {
-  // @@protoc_insertion_point(field_get:State.find_solution)
-  return _internal_find_solution();
+inline bool Environment::has_been_found() const {
+  // @@protoc_insertion_point(field_get:Environment.has_been_found)
+  return _internal_has_been_found();
 }
-inline void State::_internal_set_find_solution(bool value) {
+inline void Environment::_internal_set_has_been_found(bool value) {
   _impl_._has_bits_[0] |= 0x00000001u;
-  _impl_.find_solution_ = value;
+  _impl_.has_been_found_ = value;
 }
-inline void State::set_find_solution(bool value) {
-  _internal_set_find_solution(value);
-  // @@protoc_insertion_point(field_set:State.find_solution)
+inline void Environment::set_has_been_found(bool value) {
+  _internal_set_has_been_found(value);
+  // @@protoc_insertion_point(field_set:Environment.has_been_found)
+}
+
+// -------------------------------------------------------------------
+
+// Training
+
+// repeated .Environment environments = 1;
+inline int Training::_internal_environments_size() const {
+  return _impl_.environments_.size();
+}
+inline int Training::environments_size() const {
+  return _internal_environments_size();
+}
+inline void Training::clear_environments() {
+  _impl_.environments_.Clear();
+}
+inline ::Environment* Training::mutable_environments(int index) {
+  // @@protoc_insertion_point(field_mutable:Training.environments)
+  return _impl_.environments_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Environment >*
+Training::mutable_environments() {
+  // @@protoc_insertion_point(field_mutable_list:Training.environments)
+  return &_impl_.environments_;
+}
+inline const ::Environment& Training::_internal_environments(int index) const {
+  return _impl_.environments_.Get(index);
+}
+inline const ::Environment& Training::environments(int index) const {
+  // @@protoc_insertion_point(field_get:Training.environments)
+  return _internal_environments(index);
+}
+inline ::Environment* Training::_internal_add_environments() {
+  return _impl_.environments_.Add();
+}
+inline ::Environment* Training::add_environments() {
+  ::Environment* _add = _internal_add_environments();
+  // @@protoc_insertion_point(field_add:Training.environments)
+  return _add;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Environment >&
+Training::environments() const {
+  // @@protoc_insertion_point(field_list:Training.environments)
+  return _impl_.environments_;
 }
 
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 

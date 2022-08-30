@@ -46,14 +46,6 @@ int main( int argc, char **argv )
 	bind( sock, (struct sockaddr*)&server_address, sizeof(struct sockaddr) );
 	listen( sock, 1 );
 	
-	// std::cout << "C++ server: address assigned to python client\n";
-
-	// if( connect( sock, (struct sockaddr *)&server_address, sizeof( server_address ) ) < 0 )
-	// {
-	// 	std::cout << "C++ server: Connection Failed\n";
-	// 	exit( EXIT_FAILURE );
-	// }
-
 	sockaddr_in clientAddr;
 	socklen_t sin_size = sizeof(struct sockaddr_in);
 	int clientSock = accept( sock, (struct sockaddr*)&clientAddr, &sin_size );
@@ -62,116 +54,69 @@ int main( int argc, char **argv )
 
 	while( true )
 	{
-
-		// //receive a message from a client
-		// n = read(clientSock, buffer, 500);
-		// cout << "Confirmation code  " << n << endl;
-		// cout << "Server received:  " << buffer << endl;
-
-		// strcpy(buffer, "test");
-		// n = write(clientSock, buffer, strlen(buffer));
-		// cout << "Confirmation code  " << n << endl;
-
-		State game_state;
+		Training training;
+		Training filtered_actions;
 		
-		char* buffer = new char[1024];
-		read( clientSock, buffer, 1024 );
-		//recv( sock, buffer, 1024, 0 );
-		game_state.ParseFromString( buffer );
+		char* buffer = new char[4096];
+		read( clientSock, buffer, 4096 );
+		training.ParseFromString( buffer );
 		
-		// for( int u = 0 ; u < game_state.units_size() ; ++u )
-		// {
-		// 	auto unit = game_state.units( u );
-		// 	std::cout << "Actions of unit id=" << unit.unit_id() * 100 << ": ";
-		// 	for( int a = 0 ; a < unit.actions_id_size() ; ++a )
-		// 	{
-		// 		if( a == 0 )
-		// 			std::cout << unit.actions_id( a );
-		// 		else
-		// 			std::cout << ", " << unit.actions_id( a );
-		// 	}
-		// 	std::cout << "\n";
-		// }
-
-		// State solution;
-
-		// auto unit = solution.add_units();
-		// unit->set_unit_id( 2 );
-		// unit->add_actions_id( 21 );
-		// unit->add_actions_id( 22 );
-		// unit->add_actions_id( 23 );
-		
-		// unit = solution.add_units();
-		// unit->set_unit_id( 5 );
-		// unit->add_actions_id( 55 );
-		// unit->add_actions_id( 56 );
-		// unit->add_actions_id( 57 );
-		
-		// auto size = solution.ByteSizeLong();
-		// char* array = new char[size];
-		// solution.SerializeToArray( array, size );
-		
-		// send( clientSock, (const char*)array, size, 0 );
-
-		// actions XYY, with X the unit ID and YY the action ID.
-		// std::vector<int> actions{101, 102, 103,
-		//                          201, 203, 204, 205,
-		//                          301, 302, 303, 304, 306, 307,
-		//                          401, 402, 404};
-		// int number_selection = 8;
-		// int current_iteration = 1000;
-	
-		// std::map<int, int> last_usage{ {101, 950}, {102, 950}, {103, 940},
-		//                                {201, 960}, {203, 960}, {204, 970}, {205, 950},
-		//                                {301, 930}, {302, 930}, {303, 920}, {304, 930}, {306, 950}, {307, 960},
-		//                                {401, 990}, {402, 990}, {404, 980} };
-		// // Optimal cost 470
-
-		int number_actions = 0;
-		std::vector<int> actions;
-
-		for( auto unit : game_state.units() )
+		for( auto environment : training.environments() )
 		{
-			number_actions += unit.actions_id_size();
-			for( auto action : unit.actions_id() )
-				actions.push_back( 100 * unit.unit_id() + action );
-			// std::cout << unit.unit_id() << " ";
+			auto solution_env = filtered_actions.add_environments();
+			solution_env->set_environment_id( environment.environment_id() );
+			solution_env->set_has_been_found( false );
+
+			// if there is something to handle
+			if( environment.has_been_found() )
+			{		
+				int number_actions = 0;
+				std::vector<int> actions;
+				
+				for( auto unit : environment.units() )
+				{
+					number_actions += unit.actions_id_size();
+					for( auto action : unit.actions_id() )
+						actions.push_back( 100 * unit.unit_id() + action );
+				}
+				
+				int number_selection = std::min( 2 * environment.units_size(), number_actions );
+				
+				// BuilderASR builder( number_selection, current_iteration, actions, last_usage );
+				BuilderASR builder( number_selection, actions );
+				ghost::Solver solver( builder );
+				
+				double cost;
+				std::vector<int> solution;
+				
+				bool solution_found = solver.solve( cost, solution, 1ms );		
+				
+				solution_env->set_has_been_found( solution_found );
+				
+				if( !solution_found )
+					std::cout << "solution not found!!\n";
+				else
+				{
+					std::map<int,std::vector<int>> unit_actions;
+					
+					for( auto action : solution )
+					{
+						int unit_id = action / 100;
+						int action_id = action % 100;
+						
+						unit_actions[unit_id].push_back( action_id );
+					}
+					
+					for( auto[k, v] : unit_actions )
+					{
+						auto unit = solution_env->add_units();
+						unit->set_unit_id( k );
+						for( auto action_id : v )
+							unit->add_actions_id( action_id );
+					}
+				}
+			}
 		}
-		// std::cout << "\n";
-
-		int number_selection = std::min( 2 * game_state.units_size(), number_actions );
-		
-		// BuilderASR builder( number_selection, current_iteration, actions, last_usage );
-		BuilderASR builder( number_selection, actions );
-		ghost::Solver solver( builder );
-
-		double cost;
-		std::vector<int> solution;
-
-		bool solution_found = solver.solve( cost, solution, 1ms );		
-
-		State filtered_actions;
-		std::map<int,std::vector<int>> unit_actions;
-		
-		for( auto action : solution )
-		{
-			int unit_id = action / 100;
-			int action_id = action % 100;
-
-			unit_actions[unit_id].push_back( action_id );
-		}
-
-		for( auto[k, v] : unit_actions )
-		{
-			auto unit = filtered_actions.add_units();
-			unit->set_unit_id( k );
-			for( auto action_id : v )
-				unit->add_actions_id( action_id );
-		}
-		filtered_actions.set_find_solution( solution_found );
-
-		if( !solution_found )
-			std::cout << "solution not found\n";
 		
 		auto size = filtered_actions.ByteSizeLong();
 		char* array = new char[size];
