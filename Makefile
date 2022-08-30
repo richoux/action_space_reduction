@@ -12,6 +12,8 @@ LDFLAGSINFO=-pthread -lghost -lprotobuf
 
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
+#  CXX=clang++-14
+#  CXXFLAGS= -std=c++20 -stdlib=libstdc++ $(CXXFIRSTFLAGS) $(MYFLAGS)
 	CXX=g++
 	CXXFLAGS= -std=c++20 $(CXXFIRSTFLAGS) $(MYFLAGS)
 	CXXFLAGSDEBUG= -std=c++20 $(CXXFIRSTFLAGSDEBUG) $(MYFLAGS)
@@ -58,10 +60,10 @@ $(BINDIR)/$(EXEC): $(OBJECTS) $(OBJDIR)/asr.pb.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 $(OBJDIR)/%.o: %.cpp
-	$(CXX) $(CXXFLAGS) -I$(HPPDIR) -I./protobuf_code -c $< -o $@
+	$(CXX) $(CXXFLAGS) -I$(HPPDIR) -Iprotobuf_code -c $< -o $@
 
 $(OBJDIR)/asr.pb.o: protobuf_code/asr.pb.cc
-	$(CXX) $(CXXFLAGS) -I$(HPPDIR) -I./protobuf_code -c $< -o $@
+	$(CXX) $(CXXFLAGS) -I$(HPPDIR) -Iprotobuf_code -c $< -o $@
 
 .PHONY: clean
 
