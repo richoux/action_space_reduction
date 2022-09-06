@@ -14,6 +14,8 @@
 #include "builder_asr.hpp"
 #include "../protobuf_code/asr.pb.h"
 
+// #define TRACE
+
 using namespace std::literals::chrono_literals;
 
 int main( int argc, char **argv )
@@ -60,9 +62,10 @@ int main( int argc, char **argv )
 	
 	std::cout << "C++ server: python client connected\n";
 
+	int count = 0;
+	
 	while( true )
 	{
-
 		// //receive a message from a client
 		// n = read(clientSock, buffer, 500);
 		// cout << "Confirmation code  " << n << endl;
@@ -78,20 +81,26 @@ int main( int argc, char **argv )
 		read( clientSock, buffer, 1024 );
 		//recv( sock, buffer, 1024, 0 );
 		game_state.ParseFromString( buffer );
-		
-		// for( int u = 0 ; u < game_state.units_size() ; ++u )
-		// {
-		// 	auto unit = game_state.units( u );
-		// 	std::cout << "Actions of unit id=" << unit.unit_id() * 100 << ": ";
-		// 	for( int a = 0 ; a < unit.actions_id_size() ; ++a )
-		// 	{
-		// 		if( a == 0 )
-		// 			std::cout << unit.actions_id( a );
-		// 		else
-		// 			std::cout << ", " << unit.actions_id( a );
-		// 	}
-		// 	std::cout << "\n";
-		// }
+
+#if defined TRACE
+		std::cout << "Data received from python client.\n";
+#endif
+		for( int u = 0 ; u < game_state.units_size() ; ++u )
+		{
+			auto unit = game_state.units( u );
+#if defined TRACE
+			std::cout << "Actions of unit id=" << unit.unit_id() << ": ";
+
+			for( int a = 0 ; a < unit.actions_id_size() ; ++a )
+			{
+				if( a == 0 )
+					std::cout << unit.actions_id( a );
+				else
+					std::cout << ", " << unit.actions_id( a );
+			}
+			std::cout << "\n";
+#endif
+		}
 
 		// State solution;
 
@@ -148,30 +157,44 @@ int main( int argc, char **argv )
 		double cost;
 		std::vector<int> solution;
 
-		bool solution_found = solver.solve( cost, solution, 1ms );		
-
+		bool solution_found = solver.solve( cost, solution, 100us );		
+		++count;
+		std::cout << "Count: " << count << "\n";
+		
 		State filtered_actions;
 		std::map<int,std::vector<int>> unit_actions;
-		
-		for( auto action : solution )
-		{
-			int unit_id = action / 100;
-			int action_id = action % 100;
-
-			unit_actions[unit_id].push_back( action_id );
-		}
-
-		for( auto[k, v] : unit_actions )
-		{
-			auto unit = filtered_actions.add_units();
-			unit->set_unit_id( k );
-			for( auto action_id : v )
-				unit->add_actions_id( action_id );
-		}
-		filtered_actions.set_find_solution( solution_found );
 
 		if( !solution_found )
-			std::cout << "solution not found\n";
+			std::cout << "Solution not found\n";
+		else
+		{
+#if defined TRACE
+			std::cout << "Sending solution [ ";
+#endif
+			for( auto action : solution )
+			{
+				int unit_id = action / 100;
+				int action_id = action % 100;
+
+#if defined TRACE
+				std::cout << "unit_" << unit_id << ":" << action_id << " ";
+#endif
+				
+				unit_actions[unit_id].push_back( action_id );
+			}
+#if defined TRACE
+			std::cout << "]\n";
+#endif			
+			for( auto[k, v] : unit_actions )
+			{
+				auto unit = filtered_actions.add_units();
+				unit->set_unit_id( k );
+				for( auto action_id : v )
+					unit->add_actions_id( action_id );
+			}
+		}
+		
+		filtered_actions.set_find_solution( solution_found );
 		
 		auto size = filtered_actions.ByteSizeLong();
 		char* array = new char[size];
