@@ -66,20 +66,13 @@ int main( int argc, char **argv )
 	
 	while( true )
 	{
-		// //receive a message from a client
-		// n = read(clientSock, buffer, 500);
-		// cout << "Confirmation code  " << n << endl;
-		// cout << "Server received:  " << buffer << endl;
-
-		// strcpy(buffer, "test");
-		// n = write(clientSock, buffer, strlen(buffer));
-		// cout << "Confirmation code  " << n << endl;
-
 		State game_state;
 		
 		char* buffer = new char[1024];
 		read( clientSock, buffer, 1024 );
-		//recv( sock, buffer, 1024, 0 );
+		//auto code = read( clientSock, buffer, 1024 );
+		//std::cout << "Confirmation code  " << code << "\n";
+		//std::cout << "Server received:  " << buffer << "\n";
 		game_state.ParseFromString( buffer );
 
 #if defined TRACE
@@ -157,15 +150,41 @@ int main( int argc, char **argv )
 		double cost;
 		std::vector<int> solution;
 
-		bool solution_found = solver.solve( cost, solution, 100us );		
+		bool solution_found = solver.solve( cost, solution, 1ms );		
 		++count;
-		std::cout << "Count: " << count << "\n";
+		// std::cout << "Count: " << count << "\n";
 		
 		State filtered_actions;
 		std::map<int,std::vector<int>> unit_actions;
 
 		if( !solution_found )
+		{
 			std::cout << "Solution not found\n";
+			std::cout << "Server received the following data:\n";
+			for( int u = 0 ; u < game_state.units_size() ; ++u )
+			{
+				auto unit = game_state.units( u );
+				std::cout << "Actions of unit id=" << unit.unit_id() << ": ";
+
+				for( int a = 0 ; a < unit.actions_id_size() ; ++a )
+				{
+					if( a == 0 )
+						std::cout << unit.actions_id( a );
+					else
+						std::cout << ", " << unit.actions_id( a );
+				}
+				std::cout << "\n";
+			}
+			
+			std::cout << "Last candidate [ ";
+			for( auto action : solution )
+			{
+				int unit_id = action / 100;
+				int action_id = action % 100;
+				std::cout << "unit_" << unit_id << ":" << action_id << " ";
+			}
+			std::cout << "]\n";
+		}
 		else
 		{
 #if defined TRACE
