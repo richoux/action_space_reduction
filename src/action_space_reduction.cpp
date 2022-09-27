@@ -150,7 +150,10 @@ int main( int argc, char **argv )
 		double cost;
 		std::vector<int> solution;
 
-		bool solution_found = solver.solve( cost, solution, 1ms );		
+		ghost::Options options;
+		options.parallel_runs = true;
+
+		bool solution_found = solver.solve( cost, solution, 1ms, options );		
 		++count;
 		// std::cout << "Count: " << count << "\n";
 		
