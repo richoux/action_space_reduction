@@ -141,7 +141,8 @@ int main( int argc, char **argv )
 		}
 		// std::cout << "\n";
 
-		int number_selection = std::min( 2 * game_state.units_size(), number_actions );
+		int number_selection = std::min( 2 * game_state.units_size(), number_actions ); // we should never have number_selection = number_actions,
+		                                                                                // since this is now handled by the Python client.
 		
 		// BuilderASR builder( number_selection, current_iteration, actions, last_usage );
 		BuilderASR builder( number_selection, actions );

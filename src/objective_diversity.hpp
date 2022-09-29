@@ -1,18 +1,20 @@
 #pragma once
 
 #include <vector>
-#include <map>
+#include <set>
 
 #include <ghost/objective.hpp>
 
 using ghost::Variable;
 using ghost::Maximize;
 
-class Fairness : public Maximize
+double arith_seq( int n );
+
+class Diversity : public Maximize
 {
-	std::map<int,int> _last_iteration_usage;
+	std::set<int>	_set_units;
 	
 public:
-	Fairness( const std::vector<Variable>& variables, const std::map<int,int>& last_iteration_usage );
+	Diversity( const std::vector<Variable>& variables, const std::set<int>& set_units );
 	double required_cost( const std::vector<Variable*>& variables ) const override;
 };
