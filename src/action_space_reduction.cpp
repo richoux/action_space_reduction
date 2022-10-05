@@ -2,6 +2,7 @@
 #include <vector>
 #include <map>
 #include <string> // std::stoi
+#include <sstream>
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -17,6 +18,62 @@
 // #define TRACE
 
 using namespace std::literals::chrono_literals;
+
+void print_units_actions( const State& game_state )
+{
+	std::cout << "Data just received from python client.\n";
+	
+	for( int u = 0 ; u < game_state.units_size() ; ++u )
+	{
+		auto unit = game_state.units( u );
+		std::cout << "Actions of unit id=" << unit.unit_id() << ": ";
+		
+		for( int a = 0 ; a < unit.actions_id_size() ; ++a )
+		{
+			if( a == 0 )
+				std::cout << unit.actions_id( a );
+			else
+				std::cout << ", " << unit.actions_id( a );
+		}
+		std::cout << "\n";
+	}
+}
+
+std::string get_string_units_actions( const State& game_state )
+{
+	std::stringstream ss;
+	ss << "Data just received from python client.\n";
+	
+	for( int u = 0 ; u < game_state.units_size() ; ++u )
+	{
+		auto unit = game_state.units( u );
+		ss << "Actions of unit id=" << unit.unit_id() << ": ";
+		
+		for( int a = 0 ; a < unit.actions_id_size() ; ++a )
+		{
+			if( a == 0 )
+				ss << unit.actions_id( a );
+			else
+				ss << ", " << unit.actions_id( a );
+		}
+		ss << "\n";
+	}
+
+	return ss.str();
+}
+
+void print_units_actions( const std::vector<int>& solution )
+{
+	std::cout << "Data after running the solver.\n";
+	
+	for( auto action : solution )
+	{
+		int unit_id = action / 100;
+		int action_id = action % 100;
+		
+		std::cout << "Actions of unit id=" << unit_id << ": " << action_id << "\n";
+	}
+}
 
 int main( int argc, char **argv )
 {
@@ -68,31 +125,32 @@ int main( int argc, char **argv )
 	{
 		State game_state;
 		
-		char* buffer = new char[1024];
-		read( clientSock, buffer, 1024 );
-		//auto code = read( clientSock, buffer, 1024 );
+		char* buffer = new char[65356];
+		read( clientSock, buffer, 65356 );
+		//auto code = read( clientSock, buffer, 65356 );
 		//std::cout << "Confirmation code  " << code << "\n";
 		//std::cout << "Server received:  " << buffer << "\n";
 		game_state.ParseFromString( buffer );
 
+// #if defined TRACE
+// 		std::cout << "Data received from python client.\n";
+// #endif
+
 #if defined TRACE
-		std::cout << "Data received from python client.\n";
+		std::string trace_units = get_string_units_actions( game_state ); 
 #endif
+		
 		for( int u = 0 ; u < game_state.units_size() ; ++u )
 		{
 			auto unit = game_state.units( u );
-#if defined TRACE
-			std::cout << "Actions of unit id=" << unit.unit_id() << ": ";
-
-			for( int a = 0 ; a < unit.actions_id_size() ; ++a )
-			{
-				if( a == 0 )
-					std::cout << unit.actions_id( a );
-				else
-					std::cout << ", " << unit.actions_id( a );
-			}
-			std::cout << "\n";
-#endif
+// #if defined TRACE
+// 			if( unit.unit_id() < 0 || unit.unit_id() >= 256 )
+// 				print_units_actions( game_state );
+// 			else
+// 				for( int action_id = 0 ; action_id < unit.actions_id_size() ; ++action_id )
+// 					if( action_id < 0 || action_id >= 78 )
+// 						print_units_actions( game_state );
+// #endif
 		}
 
 		// State solution;
@@ -154,7 +212,7 @@ int main( int argc, char **argv )
 		ghost::Options options;
 		options.parallel_runs = true;
 
-		bool solution_found = solver.solve( cost, solution, 1ms, options );		
+		bool solution_found = solver.solve( cost, solution, 100 * number_selection, options ); // timeout = number_selection x 100us.
 		++count;
 		// std::cout << "Count: " << count << "\n";
 		
@@ -191,23 +249,32 @@ int main( int argc, char **argv )
 		}
 		else
 		{
-#if defined TRACE
-			std::cout << "Sending solution [ ";
-#endif
+// #if defined TRACE
+// 			std::cout << "Sending solution [ ";
+// #endif
 			for( auto action : solution )
 			{
 				int unit_id = action / 100;
 				int action_id = action % 100;
 
 #if defined TRACE
-				std::cout << "unit_" << unit_id << ":" << action_id << " ";
+			if( unit_id < 0 || unit_id >= 256 || action_id < 0 || action_id > 90 )
+			{
+				std::cout << trace_units << "\n";
+				print_units_actions( solution );
+				std::cout << "----------------------------------\n\n";
+			}
 #endif
+
+// #if defined TRACE
+// 				std::cout << "unit_" << unit_id << ":" << action_id << " ";
+// #endif
 				
 				unit_actions[unit_id].push_back( action_id );
 			}
-#if defined TRACE
-			std::cout << "]\n";
-#endif			
+// #if defined TRACE
+// 			std::cout << "]\n";
+// #endif			
 			for( auto[k, v] : unit_actions )
 			{
 				auto unit = filtered_actions.add_units();
