@@ -40,7 +40,8 @@ PROTOBUF_CONSTEXPR State::State(
     /*decltype(_impl_._has_bits_)*/{}
   , /*decltype(_impl_._cached_size_)*/{}
   , /*decltype(_impl_.units_)*/{}
-  , /*decltype(_impl_.find_solution_)*/false} {}
+  , /*decltype(_impl_.find_solution_)*/false
+  , /*decltype(_impl_.terminate_)*/false} {}
 struct StateDefaultTypeInternal {
   PROTOBUF_CONSTEXPR StateDefaultTypeInternal()
       : _instance(::_pbi::ConstantInitialized{}) {}
@@ -71,12 +72,14 @@ const uint32_t TableStruct_asr_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(prot
   ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::State, _impl_.units_),
   PROTOBUF_FIELD_OFFSET(::State, _impl_.find_solution_),
+  PROTOBUF_FIELD_OFFSET(::State, _impl_.terminate_),
   ~0u,
   0,
+  1,
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::Unit)},
-  { 8, 16, -1, sizeof(::State)},
+  { 8, 17, -1, sizeof(::State)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -86,13 +89,14 @@ static const ::_pb::Message* const file_default_instances[] = {
 
 const char descriptor_table_protodef_asr_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\tasr.proto\"+\n\004Unit\022\017\n\007unit_id\030\001 \001(\005\022\022\n\n"
-  "actions_id\030\002 \003(\005\"K\n\005State\022\024\n\005units\030\001 \003(\013"
-  "2\005.Unit\022\032\n\rfind_solution\030\002 \001(\010H\000\210\001\001B\020\n\016_"
-  "find_solutionb\006proto3"
+  "actions_id\030\002 \003(\005\"q\n\005State\022\024\n\005units\030\001 \003(\013"
+  "2\005.Unit\022\032\n\rfind_solution\030\002 \001(\010H\000\210\001\001\022\026\n\tt"
+  "erminate\030\003 \001(\010H\001\210\001\001B\020\n\016_find_solutionB\014\n"
+  "\n_terminateb\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_asr_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_asr_2eproto = {
-    false, false, 141, descriptor_table_protodef_asr_2eproto,
+    false, false, 179, descriptor_table_protodef_asr_2eproto,
     "asr.proto",
     &descriptor_table_asr_2eproto_once, nullptr, 0, 2,
     schemas, file_default_instances, TableStruct_asr_2eproto::offsets,
@@ -334,6 +338,9 @@ class State::_Internal {
   static void set_has_find_solution(HasBits* has_bits) {
     (*has_bits)[0] |= 1u;
   }
+  static void set_has_terminate(HasBits* has_bits) {
+    (*has_bits)[0] |= 2u;
+  }
 };
 
 State::State(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -349,10 +356,13 @@ State::State(const State& from)
       decltype(_impl_._has_bits_){from._impl_._has_bits_}
     , /*decltype(_impl_._cached_size_)*/{}
     , decltype(_impl_.units_){from._impl_.units_}
-    , decltype(_impl_.find_solution_){}};
+    , decltype(_impl_.find_solution_){}
+    , decltype(_impl_.terminate_){}};
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  _this->_impl_.find_solution_ = from._impl_.find_solution_;
+  ::memcpy(&_impl_.find_solution_, &from._impl_.find_solution_,
+    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.terminate_) -
+    reinterpret_cast<char*>(&_impl_.find_solution_)) + sizeof(_impl_.terminate_));
   // @@protoc_insertion_point(copy_constructor:State)
 }
 
@@ -365,6 +375,7 @@ inline void State::SharedCtor(
     , /*decltype(_impl_._cached_size_)*/{}
     , decltype(_impl_.units_){arena}
     , decltype(_impl_.find_solution_){false}
+    , decltype(_impl_.terminate_){false}
   };
 }
 
@@ -393,7 +404,9 @@ void State::Clear() {
   (void) cached_has_bits;
 
   _impl_.units_.Clear();
-  _impl_.find_solution_ = false;
+  ::memset(&_impl_.find_solution_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&_impl_.terminate_) -
+      reinterpret_cast<char*>(&_impl_.find_solution_)) + sizeof(_impl_.terminate_));
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -423,6 +436,15 @@ const char* State::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
           _Internal::set_has_find_solution(&has_bits);
           _impl_.find_solution_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // optional bool terminate = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 24)) {
+          _Internal::set_has_terminate(&has_bits);
+          _impl_.terminate_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -471,6 +493,12 @@ uint8_t* State::_InternalSerialize(
     target = ::_pbi::WireFormatLite::WriteBoolToArray(2, this->_internal_find_solution(), target);
   }
 
+  // optional bool terminate = 3;
+  if (_internal_has_terminate()) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteBoolToArray(3, this->_internal_terminate(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -494,12 +522,19 @@ size_t State::ByteSizeLong() const {
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
-  // optional bool find_solution = 2;
   cached_has_bits = _impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000001u) {
-    total_size += 1 + 1;
-  }
+  if (cached_has_bits & 0x00000003u) {
+    // optional bool find_solution = 2;
+    if (cached_has_bits & 0x00000001u) {
+      total_size += 1 + 1;
+    }
 
+    // optional bool terminate = 3;
+    if (cached_has_bits & 0x00000002u) {
+      total_size += 1 + 1;
+    }
+
+  }
   return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
@@ -519,8 +554,15 @@ void State::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF
   (void) cached_has_bits;
 
   _this->_impl_.units_.MergeFrom(from._impl_.units_);
-  if (from._internal_has_find_solution()) {
-    _this->_internal_set_find_solution(from._internal_find_solution());
+  cached_has_bits = from._impl_._has_bits_[0];
+  if (cached_has_bits & 0x00000003u) {
+    if (cached_has_bits & 0x00000001u) {
+      _this->_impl_.find_solution_ = from._impl_.find_solution_;
+    }
+    if (cached_has_bits & 0x00000002u) {
+      _this->_impl_.terminate_ = from._impl_.terminate_;
+    }
+    _this->_impl_._has_bits_[0] |= cached_has_bits;
   }
   _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -541,7 +583,12 @@ void State::InternalSwap(State* other) {
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
   _impl_.units_.InternalSwap(&other->_impl_.units_);
-  swap(_impl_.find_solution_, other->_impl_.find_solution_);
+  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(State, _impl_.terminate_)
+      + sizeof(State::_impl_.terminate_)
+      - PROTOBUF_FIELD_OFFSET(State, _impl_.find_solution_)>(
+          reinterpret_cast<char*>(&_impl_.find_solution_),
+          reinterpret_cast<char*>(&other->_impl_.find_solution_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata State::GetMetadata() const {

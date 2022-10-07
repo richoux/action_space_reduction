@@ -353,6 +353,7 @@ class State final :
   enum : int {
     kUnitsFieldNumber = 1,
     kFindSolutionFieldNumber = 2,
+    kTerminateFieldNumber = 3,
   };
   // repeated .Unit units = 1;
   int units_size() const;
@@ -385,6 +386,19 @@ class State final :
   void _internal_set_find_solution(bool value);
   public:
 
+  // optional bool terminate = 3;
+  bool has_terminate() const;
+  private:
+  bool _internal_has_terminate() const;
+  public:
+  void clear_terminate();
+  bool terminate() const;
+  void set_terminate(bool value);
+  private:
+  bool _internal_terminate() const;
+  void _internal_set_terminate(bool value);
+  public:
+
   // @@protoc_insertion_point(class_scope:State)
  private:
   class _Internal;
@@ -397,6 +411,7 @@ class State final :
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
     ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Unit > units_;
     bool find_solution_;
+    bool terminate_;
   };
   union { Impl_ _impl_; };
   friend struct ::TableStruct_asr_2eproto;
@@ -549,6 +564,34 @@ inline void State::_internal_set_find_solution(bool value) {
 inline void State::set_find_solution(bool value) {
   _internal_set_find_solution(value);
   // @@protoc_insertion_point(field_set:State.find_solution)
+}
+
+// optional bool terminate = 3;
+inline bool State::_internal_has_terminate() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000002u) != 0;
+  return value;
+}
+inline bool State::has_terminate() const {
+  return _internal_has_terminate();
+}
+inline void State::clear_terminate() {
+  _impl_.terminate_ = false;
+  _impl_._has_bits_[0] &= ~0x00000002u;
+}
+inline bool State::_internal_terminate() const {
+  return _impl_.terminate_;
+}
+inline bool State::terminate() const {
+  // @@protoc_insertion_point(field_get:State.terminate)
+  return _internal_terminate();
+}
+inline void State::_internal_set_terminate(bool value) {
+  _impl_._has_bits_[0] |= 0x00000002u;
+  _impl_.terminate_ = value;
+}
+inline void State::set_terminate(bool value) {
+  _internal_set_terminate(value);
+  // @@protoc_insertion_point(field_set:State.terminate)
 }
 
 #ifdef __GNUC__

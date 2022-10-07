@@ -10,4 +10,5 @@ message State
 {
 	repeated Unit units = 1;
 	optional bool find_solution = 2;
+	optional bool terminate = 3;	
 }

@@ -120,6 +120,7 @@ int main( int argc, char **argv )
 	std::cout << "C++ server: python client connected\n";
 
 	int count = 0;
+	int count_not_found = 0;
 	
 	while( true )
 	{
@@ -131,6 +132,9 @@ int main( int argc, char **argv )
 		//std::cout << "Confirmation code  " << code << "\n";
 		//std::cout << "Server received:  " << buffer << "\n";
 		game_state.ParseFromString( buffer );
+
+		if( game_state.terminate() )
+			break;
 
 // #if defined TRACE
 // 		std::cout << "Data received from python client.\n";
@@ -199,7 +203,7 @@ int main( int argc, char **argv )
 		}
 		// std::cout << "\n";
 
-		int number_selection = std::min( 2 * game_state.units_size(), number_actions ); // we should never have number_selection = number_actions,
+		int number_selection = std::min( 3 * game_state.units_size(), number_actions ); // we should never have number_selection = number_actions,
 		                                                                                // since this is now handled by the Python client.
 		
 		// BuilderASR builder( number_selection, current_iteration, actions, last_usage );
@@ -221,8 +225,11 @@ int main( int argc, char **argv )
 
 		if( !solution_found )
 		{
-			std::cout << "Solution not found\n";
-			std::cout << "Server received the following data:\n";
+			++count_not_found;
+			std::cout << "Solution not found\n"
+			          << "Ratio not found: " << count_not_found << "/" << count << " (" << ( 100 * static_cast<double>(count_not_found) ) /count << "%)\n"
+			          << "Server received the following data:\n";
+
 			for( int u = 0 ; u < game_state.units_size() ; ++u )
 			{
 				auto unit = game_state.units( u );
@@ -292,4 +299,9 @@ int main( int argc, char **argv )
 		
 		send( clientSock, (const char*)array, size, 0 );
 	}
+
+	std::cout << "Number of solver calls: " << count << "\n"
+	          << "Ratio not found: " << count_not_found << "/" << count << " (" << ( 100 * static_cast<double>(count_not_found) ) /count << "%)\n";
+		
+	return EXIT_SUCCESS;
 }
