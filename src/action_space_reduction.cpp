@@ -123,6 +123,7 @@ int main( int argc, char **argv )
 
 	int count = 0;
 	int count_not_found = 0;
+	int count_no_call = 0;
 	
 	while( true )
 	{
@@ -136,8 +137,10 @@ int main( int argc, char **argv )
 		game_state.ParseFromString( buffer );
 
 		if( game_state.terminate() )
+		{
+			count_no_call = game_state.no_call();
 			break;
-
+		}
 // #if defined TRACE
 // 		std::cout << "Data received from python client.\n";
 // #endif
@@ -303,7 +306,8 @@ int main( int argc, char **argv )
 	}
 
 	std::cout << "Number of solver calls: " << count << "\n"
-	          << "Ratio not found: " << count_not_found << "/" << count << " (" << ( 100 * static_cast<double>(count_not_found) ) /count << "%)\n";
+	          << "Ratio not found: " << count_not_found << "/" << count << " (" << ( 100 * static_cast<double>(count_not_found) ) /count << "%)\n"
+	          << "Python client iterations without solver calls: " << count_no_call << "\n";
 		
 	return EXIT_SUCCESS;
 }

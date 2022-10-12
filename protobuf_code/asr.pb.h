@@ -354,6 +354,7 @@ class State final :
     kUnitsFieldNumber = 1,
     kFindSolutionFieldNumber = 2,
     kTerminateFieldNumber = 3,
+    kNoCallFieldNumber = 4,
   };
   // repeated .Unit units = 1;
   int units_size() const;
@@ -399,6 +400,19 @@ class State final :
   void _internal_set_terminate(bool value);
   public:
 
+  // optional int32 no_call = 4;
+  bool has_no_call() const;
+  private:
+  bool _internal_has_no_call() const;
+  public:
+  void clear_no_call();
+  int32_t no_call() const;
+  void set_no_call(int32_t value);
+  private:
+  int32_t _internal_no_call() const;
+  void _internal_set_no_call(int32_t value);
+  public:
+
   // @@protoc_insertion_point(class_scope:State)
  private:
   class _Internal;
@@ -412,6 +426,7 @@ class State final :
     ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Unit > units_;
     bool find_solution_;
     bool terminate_;
+    int32_t no_call_;
   };
   union { Impl_ _impl_; };
   friend struct ::TableStruct_asr_2eproto;
@@ -592,6 +607,34 @@ inline void State::_internal_set_terminate(bool value) {
 inline void State::set_terminate(bool value) {
   _internal_set_terminate(value);
   // @@protoc_insertion_point(field_set:State.terminate)
+}
+
+// optional int32 no_call = 4;
+inline bool State::_internal_has_no_call() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000004u) != 0;
+  return value;
+}
+inline bool State::has_no_call() const {
+  return _internal_has_no_call();
+}
+inline void State::clear_no_call() {
+  _impl_.no_call_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000004u;
+}
+inline int32_t State::_internal_no_call() const {
+  return _impl_.no_call_;
+}
+inline int32_t State::no_call() const {
+  // @@protoc_insertion_point(field_get:State.no_call)
+  return _internal_no_call();
+}
+inline void State::_internal_set_no_call(int32_t value) {
+  _impl_._has_bits_[0] |= 0x00000004u;
+  _impl_.no_call_ = value;
+}
+inline void State::set_no_call(int32_t value) {
+  _internal_set_no_call(value);
+  // @@protoc_insertion_point(field_set:State.no_call)
 }
 
 #ifdef __GNUC__
