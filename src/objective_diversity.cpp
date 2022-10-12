@@ -10,9 +10,12 @@ double arith_seq( int n )
 		return ( 1 / std::pow( 2.0, n - 1 ) ) + arith_seq( n - 1 );
 }
 
-Diversity::Diversity( const std::vector<Variable>& variables, const std::set<int>& set_units )
+Diversity::Diversity( const std::vector<Variable>& variables,
+                      const std::set<int>& set_units,
+                      int number_selection )
 	: Maximize( variables, "Diversity" ),
-	  _set_units( set_units )
+	  _set_units( set_units ),
+	  _number_selection( number_selection )
 { }
 
 double Diversity::required_cost( const std::vector<Variable*>& variables ) const
@@ -25,9 +28,9 @@ double Diversity::required_cost( const std::vector<Variable*>& variables ) const
 	int unit_id;
 
 	// Score increases starting from the second action for the same unit
-	for( const auto var : variables )
+	for( int i = 0 ; i < _number_selection ; ++i )
 	{
-		unit_id = var->get_value() / 100;
+		unit_id = variables[i]->get_value() / 100;
 		++occurences[ unit_id ];
 	}
 
