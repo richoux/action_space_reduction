@@ -15,6 +15,8 @@
 #include "builder_asr.hpp"
 #include "../protobuf_code/asr.pb.h"
 
+#define COEFF_ACTIONS 4
+#define TIME_BUDGET 100
 // #define TRACE
 
 using namespace std::literals::chrono_literals;
@@ -203,7 +205,7 @@ int main( int argc, char **argv )
 		}
 		// std::cout << "\n";
 
-		int number_selection = std::min( 3 * game_state.units_size(), number_actions ); // we should never have number_selection = number_actions,
+		int number_selection = std::min( COEFF_ACTIONS * game_state.units_size(), number_actions ); // we should never have number_selection = number_actions,
 		                                                                                // since this is now handled by the Python client.
 		
 		// BuilderASR builder( number_selection, current_iteration, actions, last_usage );
@@ -216,7 +218,7 @@ int main( int argc, char **argv )
 		ghost::Options options;
 		options.parallel_runs = true;
 
-		bool solution_found = solver.solve( cost, solution, 100 * number_selection, options ); // timeout = number_selection x 100us.
+		bool solution_found = solver.solve( cost, solution, TIME_BUDGET * number_selection, options ); // timeout = number_selection x TIME_BUDGET (like 100us).
 		++count;
 		// std::cout << "Count: " << count << "\n";
 		
