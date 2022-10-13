@@ -9,9 +9,9 @@ double AllHaveAction::required_error( const std::vector<Variable*>& variables ) 
 	for( const auto var: variables )
 		++_map_unit_coverage[ var->get_value()/100 ];
 	
-	return std::count_if( _map_unit_coverage.begin(),
-	                      _map_unit_coverage.end(),
-	                      [](const auto& cover){ return cover.second == 0; }	);
+	return std::count_if( _set_units.begin(),
+	                      _set_units.end(),
+	                      [&](const auto unit){ return _map_unit_coverage[unit] == 0; }	);
 }
 
 double AllHaveAction::optional_delta_error( const std::vector<Variable*>& variables,
