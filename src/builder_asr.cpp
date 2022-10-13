@@ -7,7 +7,7 @@
 
 BuilderASR::BuilderASR( int number_selection,
                         const std::vector<int>& vector_units_actions )
-	: ModelBuilder( false ),
+	: ModelBuilder( true ),
 	  _number_selection( number_selection ),
 	  _vector_units_actions( vector_units_actions )
 {
@@ -22,16 +22,20 @@ BuilderASR::BuilderASR( int number_selection,
 void BuilderASR::declare_variables()
 {
 	// Create variables
-	create_n_variables( _number_selection, _vector_units_actions );
+	create_n_variables( static_cast<int>( _vector_units_actions.size() ), _vector_units_actions );
+	
+	for( size_t i = 0; i < _vector_units_actions.size(); ++i )
+		variables[i].set_value( _vector_units_actions[i] );
 }
 
 void BuilderASR::declare_constraints()
 {
-	constraints.emplace_back( std::make_shared<ghost::global_constraints::AllDifferent>( variables ) );
-	constraints.emplace_back( std::make_shared<AllHaveAction>( variables, _set_units ) );
+	// Permutation model, no need for AllDiff
+	// constraints.emplace_back( std::make_shared<ghost::global_constraints::AllDifferent>( variables ) );
+	constraints.emplace_back( std::make_shared<AllHaveAction>( variables, _set_units, _number_selection ) );
 }
 
 void BuilderASR::declare_objective()
 {
-	objective = std::make_shared<Diversity>( variables, _set_units );
+	objective = std::make_shared<Diversity>( variables, _set_units, _number_selection );
 }

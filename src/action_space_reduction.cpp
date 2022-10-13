@@ -15,8 +15,8 @@
 #include "builder_asr.hpp"
 #include "../protobuf_code/asr.pb.h"
 
-#define COEFF_ACTIONS 4
-#define TIME_BUDGET 100
+#define COEFF_ACTIONS 2
+#define TIME_BUDGET 1
 // #define TRACE
 
 using namespace std::literals::chrono_literals;
@@ -123,6 +123,7 @@ int main( int argc, char **argv )
 
 	int count = 0;
 	int count_not_found = 0;
+	int count_no_call = 0;
 	
 	while( true )
 	{
@@ -136,8 +137,10 @@ int main( int argc, char **argv )
 		game_state.ParseFromString( buffer );
 
 		if( game_state.terminate() )
+		{
+			count_no_call = game_state.no_call();
 			break;
-
+		}
 // #if defined TRACE
 // 		std::cout << "Data received from python client.\n";
 // #endif
@@ -225,6 +228,33 @@ int main( int argc, char **argv )
 		State filtered_actions;
 		std::map<int,std::vector<int>> unit_actions;
 
+#if defined GHOST_BENCH
+		std::cout << "\nServer received the following data:\n";
+		for( int u = 0 ; u < game_state.units_size() ; ++u )
+		{
+			auto unit = game_state.units( u );
+			std::cout << "Actions of unit id=" << unit.unit_id() << ": ";
+
+			for( int a = 0 ; a < unit.actions_id_size() ; ++a )
+			{
+				if( a == 0 )
+					std::cout << unit.actions_id( a );
+				else
+					std::cout << ", " << unit.actions_id( a );
+			}
+			std::cout << "\n";
+		}
+			
+		std::cout << "Last candidate [ ";
+		for( auto action : solution )
+		{
+			int unit_id = action / 100;
+			int action_id = action % 100;
+			std::cout << "unit_" << unit_id << ":" << action_id << " ";
+		}
+		std::cout << "]\n\n";
+#endif
+		
 		if( !solution_found )
 		{
 			++count_not_found;
@@ -303,7 +333,8 @@ int main( int argc, char **argv )
 	}
 
 	std::cout << "Number of solver calls: " << count << "\n"
-	          << "Ratio not found: " << count_not_found << "/" << count << " (" << ( 100 * static_cast<double>(count_not_found) ) /count << "%)\n";
+	          << "Ratio not found: " << count_not_found << "/" << count << " (" << ( 100 * static_cast<double>(count_not_found) ) /count << "%)\n"
+	          << "Python client iterations without solver calls: " << count_no_call << "\n";
 		
 	return EXIT_SUCCESS;
 }
