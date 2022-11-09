@@ -15,8 +15,8 @@
 #include "builder_asr.hpp"
 #include "../protobuf_code/asr.pb.h"
 
-#define COEFF_ACTIONS 2
-#define TIME_BUDGET 1
+#define COEFF_ACTIONS 4
+#define TIME_BUDGET 10
 // #define TRACE
 
 using namespace std::literals::chrono_literals;
